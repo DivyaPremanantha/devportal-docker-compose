@@ -1,0 +1,79 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: devportal-postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      timeout: 20s
+      retries: 10
+    environment:
+      POSTGRES_DB: devportal
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_ROOT_PASSWORD: root
+    ports:
+      - "5432:5432" 
+    expose:
+      - "5432"
+    networks:
+      - devportal-network
+    volumes:
+      - ./devportal-backend/script.sql:/docker-entrypoint-initdb.d/script.sql
+      
+  devportal-backend:
+    platform: linux/x86_64
+    image: divyaprem/devportal-service-backend:latest
+    container_name: devportal-backend
+    healthcheck:
+      test: ["CMD", "ping", "-c", "1", "devportal-backend"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
+    volumes:
+      - type: bind
+        source: ./devportal-backend/Config.toml
+        target: /home/ballerina/Config.toml
+    ports:
+      - "8080:8080" 
+      - "4000:4000" 
+      - "9090:9090" 
+      - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - devportal-network
+
+  devportal-webapp:
+    platform: linux/arm64/v8
+    image: divyaprem/devportal-developer-app:latest
+    container_name: devportal-webapp
+    volumes:
+      - type: bind
+        source: ../devportal-developer-app/public
+        target: /public/public
+      - type: bind
+        source: ../devportal-developer-app/public/resources/.env
+        target: /public/node_modules/devportal-app/.env
+    environment:
+      - NEXT_PUBLIC_DEPLOYMENT=${MODE}
+    ports:
+      - "3000:3000" 
+    depends_on:
+      db:
+        condition: service_healthy
+      devportal-backend:
+        condition: service_healthy
+    networks:
+      - devportal-network
+
+networks:
+  devportal-network:
+    driver: bridge
+    name: devportal-network
+
+volumes:
+  db-data:
