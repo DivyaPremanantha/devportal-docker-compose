@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS "AdditionalProperties";
 DROP TABLE IF EXISTS "ApiContent";
 DROP TABLE IF EXISTS "ThrottlingPolicy";
 DROP TABLE IF EXISTS "Organization";
+DROP TABLE IF EXISTS "OrgImages";
 DROP TABLE IF EXISTS "ApiMetadata";
 DROP TABLE IF EXISTS "RateLimitingPolicy";
 DROP TABLE IF EXISTS "Application";
@@ -52,10 +53,18 @@ CREATE TABLE "ApiMetadata" (
 CREATE TABLE "Organization" (
 	"orgId" VARCHAR(191) NOT NULL,
 	"organizationName" VARCHAR(191) NOT NULL,
-	"templateName" VARCHAR(191) NOT NULL,
 	"isPublic" BOOLEAN NOT NULL,
 	"authenticatedPages" VARCHAR(191) NOT NULL,
 	PRIMARY KEY("orgId")
+);
+
+CREATE TABLE "OrgImages" (
+	"imageId" VARCHAR(191) NOT NULL,
+	"fileName" VARCHAR(191) NOT NULL,
+	"image" BYTEA NOT NULL,
+	"organizationOrgId" VARCHAR(191) NOT NULL,
+	FOREIGN KEY("organizationOrgId") REFERENCES "Organization"("orgId"),
+	PRIMARY KEY("imageId")
 );
 
 CREATE TABLE "ThrottlingPolicy" (
@@ -149,6 +158,7 @@ CREATE TABLE "ApiImages" (
 	"imageId" VARCHAR(191) NOT NULL,
 	"key" VARCHAR(191) NOT NULL,
 	"value" VARCHAR(191) NOT NULL,
+	"image" BYTEA ,
 	"apimetadataApiId" VARCHAR(191) NOT NULL,
 	"apimetadataOrganizationName" VARCHAR(191) NOT NULL,
 	FOREIGN KEY("apimetadataApiId", "apimetadataOrganizationName") REFERENCES "ApiMetadata"("apiId", "organizationName"),
@@ -156,10 +166,10 @@ CREATE TABLE "ApiImages" (
 );
 
 CREATE TABLE "OrganizationAssets" (
-	"assetId" VARCHAR(191) NOT NULL,
 	"pageType" VARCHAR(191) NOT NULL,
 	"pageContent" TEXT NOT NULL,
+	"orgName" VARCHAR(191) NOT NULL,
 	"organizationOrgId" VARCHAR(191) NOT NULL,
 	FOREIGN KEY("organizationOrgId") REFERENCES "Organization"("orgId"),
-	PRIMARY KEY("assetId")
+	PRIMARY KEY("pageType","orgName")
 );
