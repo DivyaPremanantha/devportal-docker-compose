@@ -23,15 +23,9 @@ services:
       - ./devportal-backend/script.sql:/docker-entrypoint-initdb.d/script.sql
       
   devportal-backend:
-    platform: linux/x86_64
+    platform: linux/arm64/v8
     image: divyaprem/devportal-service-backend:latest
     container_name: devportal-backend
-    healthcheck:
-      test: ["CMD", "ping", "-c", "1", "devportal-backend"]
-      interval: 30s
-      timeout: 60s
-      retries: 5
-      start_period: 80s
     volumes:
       - type: bind
         source: ./devportal-backend/Config.toml
@@ -49,6 +43,9 @@ services:
 
   devportal-webapp:
     platform: linux/arm64/v8
+    # build:
+    #   context: ../devportal-developer-app
+    #   dockerfile: ../devportal-developer-app/Dockerfile
     image: divyaprem/devportal-developer-app:latest
     container_name: devportal-webapp
     volumes:
@@ -64,8 +61,6 @@ services:
       - "3000:3000" 
     depends_on:
       db:
-        condition: service_healthy
-      devportal-backend:
         condition: service_healthy
     networks:
       - devportal-network
