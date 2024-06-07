@@ -9,7 +9,7 @@ PROJECT_NAME=devportal
 
 up:
 	@echo "Starting Docker Compose services in $(MODE) mode..."
-	MODE=$(MODE) docker-compose -f $(DOCKER_COMPOSE_FILE) -p $(PROJECT_NAME) up -d --build
+	MODE=$(MODE) docker-compose -f $(DOCKER_COMPOSE_FILE) -p $(PROJECT_NAME) up --build
 
 down:
 	@echo "Stopping Docker Compose services..."
