@@ -13,8 +13,8 @@ DROP TABLE IF EXISTS "IdentityProvider";
 DROP TABLE IF EXISTS "AdditionalProperties";
 DROP TABLE IF EXISTS "ApiContent";
 DROP TABLE IF EXISTS "ThrottlingPolicy";
-DROP TABLE IF EXISTS "Organization";
 DROP TABLE IF EXISTS "OrgImages";
+DROP TABLE IF EXISTS "Organization";
 DROP TABLE IF EXISTS "ApiMetadata";
 DROP TABLE IF EXISTS "RateLimitingPolicy";
 DROP TABLE IF EXISTS "Application";
@@ -47,7 +47,7 @@ CREATE TABLE "ApiMetadata" (
 	"sandboxUrl" VARCHAR(191) NOT NULL,
 	"authorizedRoles" VARCHAR(191),
 	"metadata" TEXT NOT NULL,
-	PRIMARY KEY("apiId","organizationName")
+	PRIMARY KEY("apiId","orgId")
 );
 
 CREATE TABLE "Organization" (
@@ -59,12 +59,11 @@ CREATE TABLE "Organization" (
 );
 
 CREATE TABLE "OrgImages" (
-	"imageId" VARCHAR(191) NOT NULL,
 	"fileName" VARCHAR(191) NOT NULL,
 	"image" BYTEA NOT NULL,
-	"organizationOrgId" VARCHAR(191) NOT NULL,
-	FOREIGN KEY("organizationOrgId") REFERENCES "Organization"("orgId"),
-	PRIMARY KEY("imageId")
+	"orgId" VARCHAR(191) NOT NULL,
+	FOREIGN KEY("orgId") REFERENCES "Organization"("orgId"),
+	PRIMARY KEY("orgId","fileName")
 );
 
 CREATE TABLE "ThrottlingPolicy" (
@@ -73,28 +72,27 @@ CREATE TABLE "ThrottlingPolicy" (
 	"policyName" VARCHAR(191) NOT NULL,
 	"description" VARCHAR(191) NOT NULL,
 	"apimetadataApiId" VARCHAR(191) NOT NULL,
-	"apimetadataOrganizationName" VARCHAR(191) NOT NULL,
-	FOREIGN KEY("apimetadataApiId", "apimetadataOrganizationName") REFERENCES "ApiMetadata"("apiId", "organizationName"),
+	"apimetadataOrgId" VARCHAR(191) NOT NULL,
+	FOREIGN KEY("apimetadataApiId", "apimetadataOrgId") REFERENCES "ApiMetadata"("apiId", "orgId"),
 	PRIMARY KEY("policyId")
 );
 
 CREATE TABLE "ApiContent" (
-	"contentId" VARCHAR(191) NOT NULL,
 	"apiContent" TEXT NOT NULL,
-	"apimetadataApiId" VARCHAR(191) NOT NULL,
-	"apimetadataOrganizationName" VARCHAR(191) NOT NULL,
-	FOREIGN KEY("apimetadataApiId", "apimetadataOrganizationName") REFERENCES "ApiMetadata"("apiId", "organizationName"),
-	PRIMARY KEY("contentId")
+	"apiId" VARCHAR(191) NOT NULL,
+	"orgId" VARCHAR(191) NOT NULL,
+	FOREIGN KEY("apiId", "orgId") REFERENCES "ApiMetadata"("apiId", "orgId"),
+	PRIMARY KEY("apiId","orgId")
 );
 
 CREATE TABLE "AdditionalProperties" (
-	"propertyId" VARCHAR(191) NOT NULL,
 	"key" VARCHAR(191) NOT NULL,
 	"value" VARCHAR(191) NOT NULL,
-	"apimetadataApiId" VARCHAR(191) NOT NULL,
-	"apimetadataOrganizationName" VARCHAR(191) NOT NULL,
-	FOREIGN KEY("apimetadataApiId", "apimetadataOrganizationName") REFERENCES "ApiMetadata"("apiId", "organizationName"),
-	PRIMARY KEY("propertyId")
+	"apiId" VARCHAR(191) NOT NULL,
+	"orgId" VARCHAR(191) NOT NULL,
+	FOREIGN KEY("apiId", "orgId") REFERENCES "ApiMetadata"("apiId", "orgId"),
+	PRIMARY KEY("apiId","orgId","key")
+	
 );
 
 CREATE TABLE "IdentityProvider" (
@@ -131,8 +129,8 @@ CREATE TABLE "User" (
 CREATE TABLE "Subscription" (
 	"subscriptionId" VARCHAR(191) NOT NULL,
 	"apiApiId" VARCHAR(191) NOT NULL,
-	"apiOrganizationName" VARCHAR(191) NOT NULL,
-	FOREIGN KEY("apiApiId", "apiOrganizationName") REFERENCES "ApiMetadata"("apiId", "organizationName"),
+	"apiOrgId" VARCHAR(191) NOT NULL,
+	FOREIGN KEY("apiApiId", "apiOrgId") REFERENCES "ApiMetadata"("apiId", "orgId"),
 	"userUserId" VARCHAR(191) NOT NULL,
 	FOREIGN KEY("userUserId") REFERENCES "User"("userId"),
 	"organizationOrgId" VARCHAR(191) NOT NULL,
@@ -147,22 +145,21 @@ CREATE TABLE "Review" (
 	"rating" INT NOT NULL,
 	"comment" VARCHAR(191) NOT NULL,
 	"apifeedbackApiId" VARCHAR(191) NOT NULL,
-	"apifeedbackOrganizationName" VARCHAR(191) NOT NULL,
-	FOREIGN KEY("apifeedbackApiId", "apifeedbackOrganizationName") REFERENCES "ApiMetadata"("apiId", "organizationName"),
+	"apifeedbackOrgId" VARCHAR(191) NOT NULL,
+	FOREIGN KEY("apifeedbackApiId", "apifeedbackOrgId") REFERENCES "ApiMetadata"("apiId", "orgId"),
 	"reviewedbyUserId" VARCHAR(191) NOT NULL,
 	FOREIGN KEY("reviewedbyUserId") REFERENCES "User"("userId"),
 	PRIMARY KEY("reviewId")
 );
 
 CREATE TABLE "ApiImages" (
-	"imageId" VARCHAR(191) NOT NULL,
+	"imagePath" VARCHAR(191) NOT NULL,
 	"key" VARCHAR(191) NOT NULL,
-	"value" VARCHAR(191) NOT NULL,
-	"image" BYTEA ,
-	"apimetadataApiId" VARCHAR(191) NOT NULL,
-	"apimetadataOrganizationName" VARCHAR(191) NOT NULL,
-	FOREIGN KEY("apimetadataApiId", "apimetadataOrganizationName") REFERENCES "ApiMetadata"("apiId", "organizationName"),
-	PRIMARY KEY("imageId")
+	"image" BYTEA NOT NULL,
+	"apiId" VARCHAR(191) NOT NULL,
+	"orgId" VARCHAR(191) NOT NULL,
+	FOREIGN KEY("apiId", "orgId") REFERENCES "ApiMetadata"("apiId", "orgId"),
+	PRIMARY KEY("imagePath","apiId","orgId")
 );
 
 CREATE TABLE "OrganizationAssets" (
