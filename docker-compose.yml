@@ -21,7 +21,7 @@ services:
       - devportal-network
     volumes:
       - ./devportal-backend/script.sql:/docker-entrypoint-initdb.d/script.sql
-      
+      - db-data:/var/lib/postgresql/data
   devportal-backend:
     platform: linux/arm64/v8
     image: divyaprem/devportal-service-backend:latest
@@ -50,10 +50,10 @@ services:
     container_name: devportal-webapp
     volumes:
       - type: bind
-        source: ../devportal-developer-app/public
-        target: /public/public
+        source: ../devportal-developer-app/public/resources
+        target: /public/node_modules/devportal-app/public/resources
       - type: bind
-        source: ../devportal-developer-app/public/resources/.env
+        source: ../devportal-developer-app/.env
         target: /public/node_modules/devportal-app/.env
     environment:
       - NEXT_PUBLIC_DEPLOYMENT=${MODE}
