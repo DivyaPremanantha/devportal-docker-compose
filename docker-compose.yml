@@ -43,9 +43,6 @@ services:
 
   devportal-webapp:
     platform: linux/arm64/v8
-    # build:
-    #   context: ../devportal-developer-app
-    #   dockerfile: ../devportal-developer-app/Dockerfile
     image: divyaprem/devportal-developer-app:latest
     container_name: devportal-webapp
     volumes:
