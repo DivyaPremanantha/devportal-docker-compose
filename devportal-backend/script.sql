@@ -153,13 +153,13 @@ CREATE TABLE "Review" (
 );
 
 CREATE TABLE "ApiImages" (
+	"imageTag" VARCHAR(191) NOT NULL,
 	"imagePath" VARCHAR(191) NOT NULL,
-	"key" VARCHAR(191) NOT NULL,
 	"image" BYTEA NOT NULL,
 	"apiId" VARCHAR(191) NOT NULL,
 	"orgId" VARCHAR(191) NOT NULL,
 	FOREIGN KEY("apiId", "orgId") REFERENCES "ApiMetadata"("apiId", "orgId"),
-	PRIMARY KEY("imagePath","apiId","orgId")
+	PRIMARY KEY("imageTag","apiId","orgId")
 );
 
 CREATE TABLE "OrganizationAssets" (
