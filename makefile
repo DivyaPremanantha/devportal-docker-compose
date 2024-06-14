@@ -7,13 +7,13 @@ PROJECT_NAME=devportal
 # Targets
 .PHONY: up down restart logs
 
-DEV: MODE := dev
+DEV: MODE := DEV
 DEV:
 	@echo "Starting Docker Compose services in $(MODE) mode..."
 	MODE=$(MODE) docker-compose -f $(DOCKER_COMPOSE_FILE) -p $(PROJECT_NAME) up --build
 
 # Production target
-PROD: MODE := prod
+PROD: MODE := PROD
 PROD:
 	@echo "Starting Docker Compose services in $(MODE) mode..."
 	MODE=$(MODE) docker-compose -f $(DOCKER_COMPOSE_FILE) -p $(PROJECT_NAME) up --build
